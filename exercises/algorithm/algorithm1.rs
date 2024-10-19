@@ -6,7 +6,7 @@
 
 use std::fmt::{self, Display, Formatter};
 use std::ptr::NonNull;
-use std::vec::*;
+// use std::vec::*;
 
 #[derive(Debug)]
 struct Node<T> {
@@ -69,14 +69,42 @@ impl<T> LinkedList<T> {
             },
         }
     }
-	pub fn merge(list_a:LinkedList<T>,list_b:LinkedList<T>) -> Self
+}
+impl<T: Ord + Clone> LinkedList<T> {
+    pub fn merge(list_a:LinkedList<T>,list_b:LinkedList<T>) -> Self
 	{
-		//TODO
-		Self {
-            length: 0,
-            start: None,
-            end: None,
+        let mut result = LinkedList::new();
+
+        let mut ptr_a = list_a.start;
+        let mut ptr_b = list_b.start;
+
+        while let (Some(a), Some(b)) = (ptr_a, ptr_b) {
+            unsafe {
+                if (*a.as_ptr()).val <= (*b.as_ptr()).val {
+                    result.add((*a.as_ptr()).val.clone());
+                    ptr_a = (*a.as_ptr()).next;
+                } else {
+                    result.add((*b.as_ptr()).val.clone());
+                    ptr_b = (*b.as_ptr()).next;
+                }
+            }
         }
+
+        while let Some(a) = ptr_a {
+            unsafe {
+                result.add((*a.as_ptr()).val.clone());
+                ptr_a = (*a.as_ptr()).next;
+            }
+        }
+
+        while let Some(b) = ptr_b {
+            unsafe {
+                result.add((*b.as_ptr()).val.clone());
+                ptr_b = (*b.as_ptr()).next;
+            }
+        }
+
+        result
 	}
 }
 
